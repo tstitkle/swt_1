@@ -12,6 +12,9 @@ import model.Event;
 
 @WebServlet(name = "EventDetailServlet", urlPatterns = {"/event-detail"})
 public class EventDetailServlet extends HttpServlet {
+
+    private static final String STATUS_PAST = "past";
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -22,7 +25,7 @@ public class EventDetailServlet extends HttpServlet {
             Event e = dao.getEventById(id);
             if (e != null) {
                 VenueDAO vdao = new VenueDAO();
-                if ("past".equals(request.getParameter("error"))) {
+                if (STATUS_PAST.equals(request.getParameter("error"))) {
                     request.setAttribute("error", "Sự kiện đã diễn ra rồi, hãy đặt sự kiện khác.");
                 }
                 request.setAttribute("event", e);

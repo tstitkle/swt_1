@@ -2,6 +2,7 @@ package dal;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,7 +16,7 @@ public class DBContext {
             String url = "jdbc:sqlserver://localhost:1433;databaseName=TicketSystemDB;encrypt=false";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(url, user, pass);
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE,
                 "DATABASE CONNECTION FAILED. Check: " +
                 "(1) SQL Server is running on localhost:1433, " +

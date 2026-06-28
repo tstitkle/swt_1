@@ -14,18 +14,18 @@ public class BookingDAO extends DBContext {
     public List<Booking> getBookingsByUserId(int userId) {
         List<Booking> list = new ArrayList<>();
         String sql = "SELECT * FROM Bookings WHERE UserId = ? ORDER BY BookingDate DESC";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, userId);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                Booking b = new Booking();
-                b.setBookingId(rs.getInt("BookingId"));
-                b.setUserId(rs.getInt("UserId"));
-                b.setBookingDate(rs.getTimestamp("BookingDate"));
-                b.setTotalAmount(rs.getDouble("TotalAmount"));
-                b.setStatus(rs.getString("Status"));
-                list.add(b);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Booking b = new Booking();
+                    b.setBookingId(rs.getInt("BookingId"));
+                    b.setUserId(rs.getInt("UserId"));
+                    b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTotalAmount(rs.getDouble("TotalAmount"));
+                    b.setStatus(rs.getString("Status"));
+                    list.add(b);
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(BookingDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -35,9 +35,8 @@ public class BookingDAO extends DBContext {
 
     public int getTotalBookings() {
         String sql = "SELECT COUNT(*) FROM Bookings";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            ResultSet rs = st.executeQuery();
+        try (PreparedStatement st = connection.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -50,18 +49,18 @@ public class BookingDAO extends DBContext {
     public List<Booking> getRecentBookings(int count) {
         List<Booking> list = new ArrayList<>();
         String sql = "SELECT TOP (?) * FROM Bookings ORDER BY BookingDate DESC";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, count);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                Booking b = new Booking();
-                b.setBookingId(rs.getInt("BookingId"));
-                b.setUserId(rs.getInt("UserId"));
-                b.setBookingDate(rs.getTimestamp("BookingDate"));
-                b.setTotalAmount(rs.getDouble("TotalAmount"));
-                b.setStatus(rs.getString("Status"));
-                list.add(b);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Booking b = new Booking();
+                    b.setBookingId(rs.getInt("BookingId"));
+                    b.setUserId(rs.getInt("UserId"));
+                    b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTotalAmount(rs.getDouble("TotalAmount"));
+                    b.setStatus(rs.getString("Status"));
+                    list.add(b);
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(BookingDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -72,9 +71,8 @@ public class BookingDAO extends DBContext {
     public List<Booking> getAllBookings() {
         List<Booking> list = new ArrayList<>();
         String sql = "SELECT * FROM Bookings ORDER BY BookingDate DESC";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            ResultSet rs = st.executeQuery();
+        try (PreparedStatement st = connection.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 Booking b = new Booking();
                 b.setBookingId(rs.getInt("BookingId"));
@@ -92,19 +90,19 @@ public class BookingDAO extends DBContext {
 
     public Booking getBookingByIdAndUserId(int bookingId, int userId) {
         String sql = "SELECT * FROM Bookings WHERE BookingId = ? AND UserId = ?";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, bookingId);
             st.setInt(2, userId);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                Booking b = new Booking();
-                b.setBookingId(rs.getInt("BookingId"));
-                b.setUserId(rs.getInt("UserId"));
-                b.setBookingDate(rs.getTimestamp("BookingDate"));
-                b.setTotalAmount(rs.getDouble("TotalAmount"));
-                b.setStatus(rs.getString("Status"));
-                return b;
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Booking b = new Booking();
+                    b.setBookingId(rs.getInt("BookingId"));
+                    b.setUserId(rs.getInt("UserId"));
+                    b.setBookingDate(rs.getTimestamp("BookingDate"));
+                    b.setTotalAmount(rs.getDouble("TotalAmount"));
+                    b.setStatus(rs.getString("Status"));
+                    return b;
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(BookingDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,20 +117,20 @@ public class BookingDAO extends DBContext {
                 + "INNER JOIN Events e ON td.EventId = e.EventId "
                 + "INNER JOIN Bookings b ON td.BookingId = b.BookingId "
                 + "WHERE td.BookingId = ? AND b.UserId = ?";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, bookingId);
             st.setInt(2, userId);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                BookingDetailItem item = new BookingDetailItem();
-                item.setTicketId(rs.getInt("TicketId"));
-                item.setEventId(rs.getInt("EventId"));
-                item.setQuantity(rs.getInt("Quantity"));
-                item.setUnitPrice(rs.getDouble("UnitPrice"));
-                item.setEventTitle(rs.getString("Title"));
-                item.setEventDate(rs.getTimestamp("EventDate"));
-                items.add(item);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    BookingDetailItem item = new BookingDetailItem();
+                    item.setTicketId(rs.getInt("TicketId"));
+                    item.setEventId(rs.getInt("EventId"));
+                    item.setQuantity(rs.getInt("Quantity"));
+                    item.setUnitPrice(rs.getDouble("UnitPrice"));
+                    item.setEventTitle(rs.getString("Title"));
+                    item.setEventDate(rs.getTimestamp("EventDate"));
+                    items.add(item);
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(BookingDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -143,30 +141,29 @@ public class BookingDAO extends DBContext {
     public boolean createBooking(Booking b, int eventId, int quantity, double price) {
         String sqlBooking = "INSERT INTO Bookings (UserId, BookingDate, TotalAmount, Status) VALUES (?, GETDATE(), ?, 'COMPLETED')";
         String sqlTicket = "INSERT INTO TicketDetails (BookingId, EventId, Quantity, UnitPrice) VALUES (?, ?, ?, ?)";
-        
+
         try {
             connection.setAutoCommit(false);
-            
-            // Insert Booking
-            PreparedStatement stB = connection.prepareStatement(sqlBooking, PreparedStatement.RETURN_GENERATED_KEYS);
-            stB.setInt(1, b.getUserId());
-            stB.setDouble(2, b.getTotalAmount());
-            stB.executeUpdate();
-            
-            ResultSet rs = stB.getGeneratedKeys();
-            if (rs.next()) {
-                int bookingId = rs.getInt(1);
-                
-                // Insert Ticket Detail
-                PreparedStatement stT = connection.prepareStatement(sqlTicket);
-                stT.setInt(1, bookingId);
-                stT.setInt(2, eventId);
-                stT.setInt(3, quantity);
-                stT.setDouble(4, price);
-                stT.executeUpdate();
-                
-                connection.commit();
-                return true;
+
+            try (PreparedStatement stB = connection.prepareStatement(sqlBooking, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                stB.setInt(1, b.getUserId());
+                stB.setDouble(2, b.getTotalAmount());
+                stB.executeUpdate();
+
+                try (ResultSet rs = stB.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int bookingId = rs.getInt(1);
+                        try (PreparedStatement stT = connection.prepareStatement(sqlTicket)) {
+                            stT.setInt(1, bookingId);
+                            stT.setInt(2, eventId);
+                            stT.setInt(3, quantity);
+                            stT.setDouble(4, price);
+                            stT.executeUpdate();
+                        }
+                        connection.commit();
+                        return true;
+                    }
+                }
             }
             connection.rollback();
         } catch (SQLException ex) {

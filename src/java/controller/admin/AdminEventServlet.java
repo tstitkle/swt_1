@@ -5,8 +5,10 @@ import dal.EventDAO;
 import dal.VenueDAO;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,6 +18,10 @@ import model.Event;
 
 @WebServlet(name = "AdminEventServlet", urlPatterns = {"/admin/events"})
 public class AdminEventServlet extends HttpServlet {
+
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm", Locale.US);
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -27,17 +33,17 @@ public class AdminEventServlet extends HttpServlet {
         if (action == null) {
             request.setAttribute("events", edao.getAllEvents());
             request.getRequestDispatcher("/admin/event-list.jsp").forward(request, response);
-        } else if (action.equals("add")) {
+        } else if ("add".equals(action)) {
             request.setAttribute("categories", cdao.getAllCategories());
             request.setAttribute("venues", vdao.getAllVenues());
             request.getRequestDispatcher("/admin/event-form.jsp").forward(request, response);
-        } else if (action.equals("edit")) {
+        } else if ("edit".equals(action)) {
             int id = Integer.parseInt(request.getParameter("id"));
             request.setAttribute("event", edao.getEventById(id));
             request.setAttribute("categories", cdao.getAllCategories());
             request.setAttribute("venues", vdao.getAllVenues());
             request.getRequestDispatcher("/admin/event-form.jsp").forward(request, response);
-        } else if (action.equals("delete")) {
+        } else if ("delete".equals(action)) {
             int id = Integer.parseInt(request.getParameter("id"));
             edao.deleteEvent(id);
             response.sendRedirect("events");
@@ -54,14 +60,13 @@ public class AdminEventServlet extends HttpServlet {
         try {
             String title = request.getParameter("title");
             String desc = request.getParameter("description");
-            String dateStr = request.getParameter("eventDate"); // yyyy-MM-dd'T'HH:mm
+            String dateStr = request.getParameter("eventDate");
             double price = Double.parseDouble(request.getParameter("price"));
             int catId = Integer.parseInt(request.getParameter("categoryId"));
             int venueId = Integer.parseInt(request.getParameter("venueId"));
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-            java.util.Date parsedDate = sdf.parse(dateStr);
-            Timestamp timestamp = new Timestamp(parsedDate.getTime());
+            LocalDateTime parsedDate = LocalDateTime.parse(dateStr, DATE_FORMATTER);
+            Timestamp timestamp = Timestamp.valueOf(parsedDate);
 
             Event e = new Event();
             e.setTitle(title);
@@ -71,9 +76,9 @@ public class AdminEventServlet extends HttpServlet {
             e.setCategoryId(catId);
             e.setVenueId(venueId);
 
-            if (action.equals("add")) {
+            if ("add".equals(action)) {
                 edao.addEvent(e);
-            } else if (action.equals("edit")) {
+            } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 e.setEventId(id);
                 edao.updateEvent(e);

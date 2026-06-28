@@ -12,20 +12,20 @@ import model.User;
 public class UserDAO extends DBContext {
     public User login(String user, String pass) {
         String sql = "SELECT * FROM Users WHERE Username = ? AND Password = ?";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setString(1, user);
             st.setString(2, pass);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                User u = new User();
-                u.setUserId(rs.getInt("UserId"));
-                u.setUsername(rs.getString("Username"));
-                u.setFullName(rs.getString("FullName"));
-                u.setEmail(rs.getString("Email"));
-                u.setRoleId(rs.getInt("RoleId"));
-                u.setActive(rs.getBoolean("IsActive"));
-                return u;
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    User u = new User();
+                    u.setUserId(rs.getInt("UserId"));
+                    u.setUsername(rs.getString("Username"));
+                    u.setFullName(rs.getString("FullName"));
+                    u.setEmail(rs.getString("Email"));
+                    u.setRoleId(rs.getInt("RoleId"));
+                    u.setActive(rs.getBoolean("IsActive"));
+                    return u;
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -35,8 +35,7 @@ public class UserDAO extends DBContext {
 
     public void updateUser(User u) {
         String sql = "UPDATE Users SET FullName = ?, Email = ? WHERE UserId = ?";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setString(1, u.getFullName());
             st.setString(2, u.getEmail());
             st.setInt(3, u.getUserId());
@@ -48,19 +47,19 @@ public class UserDAO extends DBContext {
 
     public User getUserById(int id) {
         String sql = "SELECT * FROM Users WHERE UserId = ?";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, id);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                User u = new User();
-                u.setUserId(rs.getInt("UserId"));
-                u.setUsername(rs.getString("Username"));
-                u.setFullName(rs.getString("FullName"));
-                u.setEmail(rs.getString("Email"));
-                u.setRoleId(rs.getInt("RoleId"));
-                u.setActive(rs.getBoolean("IsActive"));
-                return u;
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    User u = new User();
+                    u.setUserId(rs.getInt("UserId"));
+                    u.setUsername(rs.getString("Username"));
+                    u.setFullName(rs.getString("FullName"));
+                    u.setEmail(rs.getString("Email"));
+                    u.setRoleId(rs.getInt("RoleId"));
+                    u.setActive(rs.getBoolean("IsActive"));
+                    return u;
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -70,8 +69,7 @@ public class UserDAO extends DBContext {
 
     public boolean register(String username, String password, String fullName, String email) {
         String sql = "INSERT INTO Users (Username, Password, FullName, Email, RoleId, IsActive) VALUES (?, ?, ?, ?, 2, 1)";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setString(1, username);
             st.setString(2, password);
             st.setString(3, fullName);
@@ -86,10 +84,9 @@ public class UserDAO extends DBContext {
 
     public boolean checkExists(String username) {
         String sql = "SELECT * FROM Users WHERE Username = ?";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
             st.setString(1, username);
-            ResultSet rs = st.executeQuery();
             return rs.next();
         } catch (SQLException ex) {
             Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -99,9 +96,8 @@ public class UserDAO extends DBContext {
 
     public int getTotalUsers() {
         String sql = "SELECT COUNT(*) FROM Users";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            ResultSet rs = st.executeQuery();
+        try (PreparedStatement st = connection.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -114,9 +110,8 @@ public class UserDAO extends DBContext {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT UserId, Username, FullName, Email, RoleId, IsActive FROM Users ORDER BY UserId DESC";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            ResultSet rs = st.executeQuery();
+        try (PreparedStatement st = connection.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 User u = new User();
                 u.setUserId(rs.getInt("UserId"));
@@ -135,8 +130,7 @@ public class UserDAO extends DBContext {
 
     public void addUser(User u) {
         String sql = "INSERT INTO Users (Username, Password, FullName, Email, RoleId, IsActive) VALUES (?, ?, ?, ?, ?, 1)";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setString(1, u.getUsername());
             st.setString(2, u.getPassword());
             st.setString(3, u.getFullName());
@@ -150,8 +144,7 @@ public class UserDAO extends DBContext {
 
     public void updateUserByAdmin(User u) {
         String sql = "UPDATE Users SET FullName = ?, Email = ?, RoleId = ? WHERE UserId = ?";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setString(1, u.getFullName());
             st.setString(2, u.getEmail());
             st.setInt(3, u.getRoleId());
@@ -164,8 +157,7 @@ public class UserDAO extends DBContext {
 
     public void setUserActive(int userId, boolean active) {
         String sql = "UPDATE Users SET IsActive = ? WHERE UserId = ?";
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setBoolean(1, active);
             st.setInt(2, userId);
             st.executeUpdate();
