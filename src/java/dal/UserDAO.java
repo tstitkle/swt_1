@@ -3,6 +3,7 @@ package dal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -10,6 +11,15 @@ import java.util.logging.Logger;
 import model.User;
 
 public class UserDAO extends DBContext {
+
+    public UserDAO() {
+        super(); // calls the real DB connection constructor
+    }
+
+    public UserDAO(Connection conn) {
+        super(conn);
+    }
+
     public User login(String user, String pass) {
         String sql = "SELECT * FROM Users WHERE Username = ? AND Password = ?";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
@@ -84,8 +94,7 @@ public class UserDAO extends DBContext {
 
     public boolean checkExists(String username) {
         String sql = "SELECT * FROM Users WHERE Username = ?";
-        try (PreparedStatement st = connection.prepareStatement(sql);
-             ResultSet rs = st.executeQuery()) {
+        try (PreparedStatement st = connection.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             st.setString(1, username);
             return rs.next();
         } catch (SQLException ex) {
@@ -96,8 +105,7 @@ public class UserDAO extends DBContext {
 
     public int getTotalUsers() {
         String sql = "SELECT COUNT(*) FROM Users";
-        try (PreparedStatement st = connection.prepareStatement(sql);
-             ResultSet rs = st.executeQuery()) {
+        try (PreparedStatement st = connection.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -110,8 +118,7 @@ public class UserDAO extends DBContext {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT UserId, Username, FullName, Email, RoleId, IsActive FROM Users ORDER BY UserId DESC";
-        try (PreparedStatement st = connection.prepareStatement(sql);
-             ResultSet rs = st.executeQuery()) {
+        try (PreparedStatement st = connection.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 User u = new User();
                 u.setUserId(rs.getInt("UserId"));

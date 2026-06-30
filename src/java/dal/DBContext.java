@@ -7,7 +7,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DBContext {
-    protected Connection connection;
+
+    public Connection connection;
 
     public DBContext() {
         try {
@@ -18,14 +19,18 @@ public class DBContext {
             connection = DriverManager.getConnection(url, user, pass);
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE,
-                "DATABASE CONNECTION FAILED. Check: " +
-                "(1) SQL Server is running on localhost:1433, " +
-                "(2) database 'TicketSystemDB' exists, " +
-                "(3) login 'sa' with password '123' is enabled, " +
-                "(4) SQL Server Authentication mode is enabled.", ex);
+                    "DATABASE CONNECTION FAILED. Check: "
+                    + "(1) SQL Server is running on localhost:1433, "
+                    + "(2) database 'TicketSystemDB' exists, "
+                    + "(3) login 'sa' with password '123' is enabled, "
+                    + "(4) SQL Server Authentication mode is enabled.", ex);
             throw new RuntimeException(
-                "Cannot connect to database. Please check SQL Server is running and credentials are correct. " +
-                "Details: " + ex.getMessage(), ex);
+                    "Cannot connect to database. Please check SQL Server is running and credentials are correct. "
+                    + "Details: " + ex.getMessage(), ex);
         }
+    }
+
+    protected DBContext(Connection conn) {
+        this.connection = conn;
     }
 }
